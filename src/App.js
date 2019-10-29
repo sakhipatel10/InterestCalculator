@@ -1,26 +1,69 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { createStore } from 'redux';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+/*/************************
+     PART 1: SETTING UP
+/**************************/
 
-export default App;
+const reducer = (state =0 , action) => {
+  if(!action.payload){
+    action.payload = {principal:0, rate:0, years: 0}
+  }
+  
+  return action.payload.principal * (1 + ((action.payload.rate/100) * action.payload.years));
+
+};
+
+const store = createStore(reducer);
+console.log(store.getState());
+/*/************************
+  PART 2: UTILITY METHODS
+/**************************/
+
+/**
+ * Gets the value of the input field
+ *
+ * @return {Number} Value of the input field
+ */
+const getValue = (str) => {
+  let value = parseFloat(document.getElementById(str).value);
+  return isNaN(value) ? 0 : value;
+};
+
+/**
+ * Sets the total value as returned by the store
+ */
+const setTotal = value => {
+  document.getElementById('grand-total').innerHTML = value;
+};
+
+/*/************************
+  PART 3: ACTION CREATORS
+/**************************/
+
+/**
+ * Action Creator. Returns an action of the type 'SET'
+ */
+const setValue = () => ({
+  type: 'SET',
+  payload: { 
+            principal: getValue('principal'),
+             rate: getValue('rate'),
+             years: getValue('years'),
+            },
+});
+
+
+/*/************************
+  PART 4: HOOK BEHAVIOR
+/**************************/
+
+// Subscribe to updates
+store.subscribe(() => {
+  setTotal(store.getState());
+});
+
+// Handle button click
+document.getElementById('submit').addEventListener('click', () => {
+  store.dispatch(setValue());
+});
+
